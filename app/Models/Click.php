@@ -10,4 +10,8 @@ class Click extends Model
     use HasFactory;
 
     protected $fillable = ['url_id', 'ip_address', 'user_agent'];
+
+    public function url() {
+        return $this->belongsTo(Url::class);
+    }
 }

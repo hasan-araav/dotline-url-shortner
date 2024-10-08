@@ -10,4 +10,8 @@ class Url extends Model
     use HasFactory;
 
     protected $fillable = ['original_url', 'short_code', 'expires_at'];
+
+    public function clickDetails() {
+        return $this->hasMany(Click::class);
+    }
 }
