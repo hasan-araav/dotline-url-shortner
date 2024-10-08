@@ -7,11 +7,20 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
+            <form action="{{ route('url.shorten') }}" method="POST">
+                @csrf
+                <x-text-input name="url" class="w-full mb-4" placeholder="https://example.com" required />
+                <x-primary-button>
+                    Shorten URL
+                </x-primary-button>
+            </form>
+        </div>
+    </div>
+
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            {{-- {{ dd($urls) }} --}}
+            <x-url-table :urls="$urls" />
         </div>
     </div>
 </x-app-layout>
