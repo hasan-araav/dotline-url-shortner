@@ -36,4 +36,17 @@ class UrlController extends Controller
         $this->urlShortenerService->recordClick($url, request());
         return redirect()->away($url->original_url);
     }
+
+    public function getAnalytics($shortCode) {
+        $url = $this->urlShortenerService->findByShortCode($shortCode);
+
+        if (!$url) {
+            abort(404);
+        }
+
+        return view('shortCode.analytics', ['url' => $url]);
+
+
+
+    }
 }

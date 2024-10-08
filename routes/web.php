@@ -19,6 +19,8 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     Route::post('/shorten', [UrlController::class, 'shorten'])->name('url.shorten');
+    Route::get('/analytics/{shortCode}', [UrlController::class, 'getAnalytics'])->name('url.analytics');
+    Route::delete('/{shortCode}', [UrlController::class, 'destroy'])->name('url.delete');
 });
 
 Route::get('/{shortCode}', [UrlController::class, 'redirect']);

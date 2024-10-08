@@ -23,8 +23,8 @@
                     <td><a href="{{ url($url->short_code) }}" target="_blank">{{ url($url->short_code) }}</a></td>
                     <td>{{ $url->clicks }}</td>
                     <td>
-                        <button wire:click="analytics({{ $url->id }})" class="btn btn-info">Analytics</button>
-                        <button wire:click="deleteUrl({{ $url->id }})" class="btn btn-danger">Delete</button>
+                        <a href="{{ route('url.analytics', ['shortCode' => $url->short_code]) }}" class="btn btn-info">Analytics</button>
+                        <a href="{{ route('url.delete', ['shortCode' => $url->short_code]) }}" class="btn btn-danger">Delete</button>
                     </td>
                 </tr>
             @endforeach
