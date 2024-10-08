@@ -25,4 +25,15 @@ class UrlController extends Controller
         ]);
 
     }
+
+    public function redirect($shortCode) {
+        $url = $this->urlShortenerService->findByShortCode($shortCode);
+
+        if (!$url) {
+            abort(404);
+        }
+
+        $this->urlShortenerService->recordClick($url, request());
+        return redirect()->away($url->original_url);
+    }
 }

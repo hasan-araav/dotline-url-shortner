@@ -21,4 +21,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/shorten', [UrlController::class, 'shorten'])->name('url.shorten');
 });
 
+Route::get('/{shortCode}', [UrlController::class, 'redirect']);
+
 require __DIR__.'/auth.php';
