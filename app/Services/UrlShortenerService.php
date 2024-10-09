@@ -4,6 +4,7 @@ namespace App\Services;
 use App\Models\Url;
 use App\Models\Click;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -47,12 +48,16 @@ class UrlShortenerService {
 
     public function findByShortCode($shortCode) {
 
-        return Url::where('short_code', $shortCode)
+        $cacheKey = "url:{$shortCode}";
+
+        return Cache::remember($cacheKey, 3600, function () use ($shortCode) {
+            return Url::where('short_code', $shortCode)
             ->where(function ($query) {
                 $query->whereNull('expires_at')
                     ->orWhere('expires_at', '>', now());
             })
             ->first();
+        });
     }
 
     public function recordClick(Url $url, Request $request) {
