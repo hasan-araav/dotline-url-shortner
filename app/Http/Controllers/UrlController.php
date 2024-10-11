@@ -7,6 +7,7 @@ use App\Models\Url;
 use App\Rules\SafeUrl;
 use App\Services\UrlShortenerService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\RateLimiter;
 
@@ -66,14 +67,21 @@ class UrlController extends Controller
     }
 
     public function getAnalytics($shortCode) {
+
         $url = $this->urlShortenerService->findByShortCode($shortCode);
 
         if (!$url) {
             abort(404);
         }
 
-        $clicks = $url->clicks()->get();
+        $clicks = $url->clicks()
+            ->select('country', 'device_type', 'browser', 'os', DB::raw('count(*) as count'))
+            ->groupBy('country', 'device_type', 'browser', 'os')
+            ->get();
 
-        return view('shortCode.analytics', ['url' => $url, 'clicks' => $clicks]);
+        return view('shortCode.analytics', [
+            'url' => $url,
+            'clicks' => $clicks
+        ]);
     }
 }

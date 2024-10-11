@@ -19,18 +19,20 @@
 
 <table>
     <thead>
-        <th>IP Address</th>
-        <th>User Agent</th>
-        <th>Created At</th>
-        <th>Expires At</th>
+        <th>Country</th>
+        <th>Device Type</th>
+        <th>Browser</th>
+        <th>OS</th>
+        <th>Visits</th>
     </thead>
     <tbody>
         @foreach ($clicks as $click)
         <tr>
-            <td>{{ $click->ip_address }}</td>
-            <td>{{ $click->user_agent }}</td>
-            <td>{{ $click->created_at }}</td>
-            <td>{{ $click->updated_at }}</td>
+            <td>{{ $click->country }}</td>
+            <td>{{ $click->device_type }}</td>
+            <td>{{ $click->browser }}</td>
+            <td>{{ $click->os }}</td>
+            <td>{{ $click->count }}</td>
         </tr>
         @endforeach
     </tbody>
