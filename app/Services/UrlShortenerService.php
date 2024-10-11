@@ -50,13 +50,19 @@ class UrlShortenerService {
 
         $cacheKey = "url:{$shortCode}";
 
-        return Cache::remember($cacheKey, 3600, function () use ($shortCode) {
-            return Url::where('short_code', $shortCode)
-            ->where(function ($query) {
-                $query->whereNull('expires_at')
-                    ->orWhere('expires_at', '>', now());
-            })
-            ->first();
+        return Cache::remember($cacheKey, 3600, function () use ($shortCode, $cacheKey) {
+            $url = Url::where('short_code', $shortCode)->first();
+
+            if (!$url) {
+                return null;
+            }
+
+            if ($url->expires_at && $url->expires_at->isPast()) {
+                Cache::forget($cacheKey);
+                return null;
+            }
+
+            return $url;
         });
     }
 
