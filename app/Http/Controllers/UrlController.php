@@ -54,7 +54,13 @@ class UrlController extends Controller
             abort(404);
         }
 
-        RecordClickJob::dispatch($url, request()->ip(), request()->userAgent());
+        $request = [
+            'ip' => request()->ip(),
+            'userAgent' => request()->userAgent(),
+            'referer' => request()->header('referer')
+        ];
+
+        RecordClickJob::dispatch($url, $request);
 
         return redirect()->away($url->original_url);
     }
