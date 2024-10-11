@@ -7,7 +7,8 @@
     <meta name="description" content="">
     <title>Dotline URL Shortner</title>
 
-    <!-- Bootstrap core CSS -->
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Scripts -->
     @vite(['resources/css/bootstrap.min.css', 'resources/js/bootstrap.bundle.min.js'])
 </head>
@@ -115,11 +116,148 @@
                     </div>
                 </div>
             </div>
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="card center text-center mx-auto">
+                        <div class="card-header text-white bg-primary">
+                          <h5 class="card-title">Cities</h5>
+                        </div>
+                        <div class="card-body">
+                          <canvas id="citiesDonutChart" width="400" height="300"></canvas>
+                        </div>
+                      </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card center text-center mx-auto">
+                        <div class="card-header text-white bg-primary">
+                          <h5 class="card-title">Platforms</h5>
+                        </div>
+                        <div class="card-body">
+                          <canvas id="platformsDonutChart" width="400" height="300"></canvas>
+                        </div>
+                      </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card center text-center mx-auto">
+                        <div class="card-header text-white bg-primary">
+                          <h5 class="card-title">Browsers</h5>
+                        </div>
+                        <div class="card-body">
+                          <canvas id="browsersDonutChart" width="400" height="300"></canvas>
+                        </div>
+                      </div>
+                </div>
+            </div>
         </main>
         <footer class="pt-5 my-5 text-muted border-top">
             Created by Hasan Uj Jaman with Love.
         </footer>
     </div>
+
+    <script>
+        const citiesCanvas = document.getElementById('citiesDonutChart').getContext('2d');
+        const platformsCanvas = document.getElementById('platformsDonutChart').getContext('2d');
+        const browsersCanvas = document.getElementById('platformsDonutChart').getContext('2d');
+        const citiesDonutChart = new Chart(citiesCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: {!! json_encode($analytics["cities"]["labels"]) !!},
+            datasets: [{
+              label: 'Visitors',
+              data: {!! json_encode($analytics["cities"]["counts"]) !!},
+              backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)'
+              ],
+              borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+            },
+          },
+        });
+        const platformsDonutChart = new Chart(platformsCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: {!! json_encode($analytics["platforms"]["labels"]) !!},
+            datasets: [{
+              label: 'Visitors',
+              data: {!! json_encode($analytics["platforms"]["counts"]) !!},
+              backgroundColor: [
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)'
+              ],
+              borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+            },
+          },
+        });
+        const browsersDonutChart = new Chart(browsersCanvas, {
+          type: 'doughnut',
+          data: {
+            labels: {!! json_encode($analytics["browsers"]["labels"]) !!},
+            datasets: [{
+              label: 'Visitors',
+              data: {!! json_encode($analytics["browsers"]["counts"]) !!},
+              backgroundColor: [
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)'
+              ],
+              borderColor: [
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)'
+              ],
+              borderWidth: 1
+            }]
+          },
+          options: {
+            responsive: true,
+            plugins: {
+              legend: {
+                position: 'top',
+              },
+            },
+          },
+        });
+      </script>
 </body>
 
 </html>

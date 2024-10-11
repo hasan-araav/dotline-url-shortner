@@ -65,16 +65,75 @@ class ClickAnalyticsService
         });
     }
 
-    public static function getAnalytics($urlId) {
+    public static function getDonutChartData($urlId)
+    {
+        return Cache::remember("donut_chart_data:{$urlId}", self::$cacheTime, function () use ($urlId) {
+            $browsers = DB::table('clicks')
+                ->where('url_id', $urlId)
+                ->select('browser', DB::raw('count(*) as count'))
+                ->groupBy('browser')
+                ->orderByDesc('count')
+                ->limit(5)
+                ->get()
+                ->toArray();
+
+            $browserLabels = array_column($browsers, 'browser');
+            $browserCounts = array_column($browsers, 'count');
+
+            $platforms = DB::table('clicks')
+                ->where('url_id', $urlId)
+                ->select('device_type', DB::raw('count(*) as count'))
+                ->groupBy('device_type')
+                ->orderByDesc('count')
+                ->limit(5)
+                ->get()
+                ->toArray();
+
+            $platformLabels = array_column($platforms, 'device_type');
+            $platformCounts = array_column($platforms, 'count');
+
+            $cities = DB::table('clicks')
+                ->where('url_id', $urlId)
+                ->select('city', DB::raw('count(*) as count'))
+                ->groupBy('city')
+                ->orderByDesc('count')
+                ->limit(5)
+                ->get()
+                ->toArray();
+
+            $cityLabels = array_column($cities, 'city');
+            $cityCounts = array_column($cities, 'count');
+
+            return [
+                'browsers' => [
+                    'labels' => $browserLabels,
+                    'counts' => $browserCounts,
+                ],
+                'platforms' => [
+                    'labels' => $platformLabels,
+                    'counts' => $platformCounts,
+                ],
+                'cities' => [
+                    'labels' => $cityLabels,
+                    'counts' => $cityCounts,
+                ],
+            ];
+        });
+    }
+
+    public static function getAnalytics($urlId)
+    {
         $basicAnalytics = self::getBasicAnalytics($urlId);
         $averageVisits = self::getAverageVisits($urlId);
+        $donutChartData = self::getDonutChartData($urlId);
 
-        return array_merge($basicAnalytics, $averageVisits);
+        return array_merge($basicAnalytics, $averageVisits, $donutChartData);
     }
 
     public static function invalidateCache($urlId)
     {
         Cache::forget("basic_analytics:{$urlId}");
         Cache::forget("average_visits:{$urlId}");
+        Cache::forget("donut_chart_data:{$urlId}");
     }
 }
