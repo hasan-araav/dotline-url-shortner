@@ -6,17 +6,36 @@ use App\Models\Url;
 use App\Services\UrlShortenerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\RateLimiter;
+
 
 class UrlController extends Controller
 {
     public function __construct(protected UrlShortenerService $urlShortenerService) {}
 
-    public function shorten(Request $request) {
-        $validator = Validator::make($request->all(), [
-            'url' => 'required|url|max:2048',
-        ]);
+    public function index() {
+        return view('dashboard')->with(['urls' => Url::all()]);
+    }
 
-        $url = $this->urlShortenerService->shorten($request->url);
+    public function shorten(Request $request) {
+
+        $url = RateLimiter::attempt(
+            'create-url:' . $request->ip(),
+            $maxAttempts = 5, // Allow 5 attempts...
+            function() use ($request) {
+
+                $validator = Validator::make($request->all(), [
+                    'url' => 'required|url|max:2048',
+                ]);
+
+                return $this->urlShortenerService->shorten($request->url);
+            },
+            $decaySeconds = 60 // ...per minute
+        );
+
+        if (! $url) {
+            return redirect()->back()->withErrors(['error' => 'Too many requests. Please try again later.']);
+        }
 
         return redirect()->back()->with([
             'original_url' => $url->original_url,
