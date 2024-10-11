@@ -11,7 +11,7 @@ class Url extends Model
 
     protected $fillable = ['original_url', 'short_code', 'expires_at'];
 
-    public function clickDetails() {
+    public function clicks() {
         return $this->hasMany(Click::class);
     }
 }

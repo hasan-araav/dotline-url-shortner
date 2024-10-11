@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Jobs\RecordClickJob;
 use App\Models\Url;
 use App\Rules\SafeUrl;
 use App\Services\UrlShortenerService;
@@ -53,7 +54,8 @@ class UrlController extends Controller
             abort(404);
         }
 
-        $this->urlShortenerService->recordClick($url, request());
+        RecordClickJob::dispatch($url, request()->ip(), request()->userAgent());
+
         return redirect()->away($url->original_url);
     }
 
@@ -64,9 +66,8 @@ class UrlController extends Controller
             abort(404);
         }
 
-        return view('shortCode.analytics', ['url' => $url]);
+        $clicks = $url->clicks()->get();
 
-
-
+        return view('shortCode.analytics', ['url' => $url, 'clicks' => $clicks]);
     }
 }

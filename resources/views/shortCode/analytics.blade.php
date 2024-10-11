@@ -16,3 +16,22 @@
         </tr>
     </tbody>
 </table>
+
+<table>
+    <thead>
+        <th>IP Address</th>
+        <th>User Agent</th>
+        <th>Created At</th>
+        <th>Expires At</th>
+    </thead>
+    <tbody>
+        @foreach ($clicks as $click)
+        <tr>
+            <td>{{ $click->ip_address }}</td>
+            <td>{{ $click->user_agent }}</td>
+            <td>{{ $click->created_at }}</td>
+            <td>{{ $click->updated_at }}</td>
+        </tr>
+        @endforeach
+    </tbody>
+</table>
