@@ -2,29 +2,30 @@
 
 namespace App\Services;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class ClickAnalyticsService
 {
+    private static $cacheTime = 3600; // Cache for 1 hour
     public static function getBasicAnalytics($urlId)
     {
-        $totalVisits = DB::table('clicks')->where('url_id', $urlId)->count();
+        return Cache::remember("basic_analytics:{$urlId}", self::$cacheTime, function () use ($urlId) {
+            $totalVisits = DB::table('clicks')->where('url_id', $urlId)->count();
+            $uniqueVisits = DB::table('clicks')->where('url_id', $urlId)->distinct('ip_address')->count('ip_address');
 
-        $uniqueVisits = DB::table('clicks')
-            ->where('url_id', $urlId)
-            ->distinct('ip_address')
-            ->count('ip_address');
-
-        return [
-            'total_visits' => $totalVisits,
-            'unique_visits' => $uniqueVisits,
-        ];
+            return [
+                'total_visits' => $totalVisits,
+                'unique_visits' => $uniqueVisits,
+            ];
+        });
     }
 
     public static function getAverageVisits($urlId)
     {
-        $query = "
+        return Cache::remember("average_visits:{$urlId}", self::$cacheTime, function () use ($urlId) {
+            $query = "
                 SELECT
                     AVG(daily_visits) as avg_daily_visits,
                     AVG(weekly_visits) as avg_weekly_visits,
@@ -61,6 +62,7 @@ class ClickAnalyticsService
                 'avg_weekly_visits' => round($stats->avg_weekly_visits ?? 0, 2),
                 'avg_monthly_visits' => round($stats->avg_monthly_visits ?? 0, 2)
             ];
+        });
     }
 
     public static function getAnalytics($urlId) {
@@ -68,5 +70,11 @@ class ClickAnalyticsService
         $averageVisits = self::getAverageVisits($urlId);
 
         return array_merge($basicAnalytics, $averageVisits);
+    }
+
+    public static function invalidateCache($urlId)
+    {
+        Cache::forget("basic_analytics:{$urlId}");
+        Cache::forget("average_visits:{$urlId}");
     }
 }
