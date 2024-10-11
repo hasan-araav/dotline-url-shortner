@@ -10,6 +10,7 @@ class Url extends Model
     use HasFactory;
 
     protected $fillable = ['original_url', 'short_code', 'expires_at'];
+    protected $casts = ['expires_at' => 'datetime'];
 
     public function clicks() {
         return $this->hasMany(Click::class);
