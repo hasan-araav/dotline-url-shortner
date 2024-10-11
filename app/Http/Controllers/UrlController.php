@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Jobs\RecordClickJob;
 use App\Models\Url;
 use App\Rules\SafeUrl;
+use App\Services\ClickAnalyticsService;
 use App\Services\UrlShortenerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,21 +17,24 @@ class UrlController extends Controller
 {
     public function __construct(protected UrlShortenerService $urlShortenerService) {}
 
+    public function dashboard() {
+        return view('dashboard', ['urls' => Url::all()]);
+    }
+
     public function index() {
-        return view('dashboard')->with(['urls' => Url::all()]);
+        return view('homepage')->with(['urls' => Url::all()]);
     }
 
     public function shorten(Request $request) {
+
+        $validator = $request->validate([
+            'url' => ['required', 'url', 'max:2048', new SafeUrl],
+        ]);
 
         $url = RateLimiter::attempt(
             'create-url:' . $request->ip(),
             $maxAttempts = 5, // Allow 5 attempts...
             function() use ($request) {
-
-                $validator = Validator::make($request->all(), [
-                    'url' => ['required', 'url', 'max:2048', new SafeUrl],
-                ]);
-
                 return $this->urlShortenerService->shorten($request->url);
             },
             $decaySeconds = 60 // ...per minute
@@ -42,7 +46,8 @@ class UrlController extends Controller
 
         return redirect()->back()->with([
             'original_url' => $url->original_url,
-            'short_url' => url($url->short_code),
+            'short_url' => url('t/'.$url->short_code),
+            'short_code' => $url->short_code,
             'expires_at' => $url->expires_at,
         ]);
 
@@ -74,14 +79,11 @@ class UrlController extends Controller
             abort(404);
         }
 
-        $clicks = $url->clicks()
-            ->select('country', 'device_type', 'browser', 'os', DB::raw('count(*) as count'))
-            ->groupBy('country', 'device_type', 'browser', 'os')
-            ->get();
+        $analytics = ClickAnalyticsService::getAnalytics($url->id);
 
         return view('shortCode.analytics', [
             'url' => $url,
-            'clicks' => $clicks
+            'analytics' => $analytics
         ]);
     }
 }

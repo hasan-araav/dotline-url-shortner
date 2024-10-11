@@ -8,10 +8,10 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             @if ($errors->any())
-     @foreach ($errors->all() as $error)
-         <div>{{$error}}</div>
-     @endforeach
- @endif
+                @foreach ($errors->all() as $error)
+                    <div>{{ $error }}</div>
+                @endforeach
+            @endif
             <form action="{{ route('url.shorten') }}" method="POST">
                 @csrf
                 <x-text-input name="url" class="w-full mb-4" placeholder="https://example.com" required />

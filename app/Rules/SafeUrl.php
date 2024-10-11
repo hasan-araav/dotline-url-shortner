@@ -38,7 +38,7 @@ class SafeUrl implements ValidationRule
             ]
         ]);
 
-        if (!$response->json('matches')) {
+        if ($response->json('matches')) {
             $fail('This :attribute is not safe');
         }
     }

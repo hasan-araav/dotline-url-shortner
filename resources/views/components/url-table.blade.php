@@ -20,7 +20,7 @@
                 <tr>
                     <td>{{ $url->id }}</td>
                     <td><a href="{{ $url->original_url }}" target="_blank">{{ $url->original_url }}</a></td>
-                    <td><a href="{{ url($url->short_code) }}" target="_blank">{{ url($url->short_code) }}</a></td>
+                    <td><a href="{{ url('t/'.$url->short_code) }}" target="_blank">{{ url('t/'.$url->short_code) }}</a></td>
                     <td>{{ $url->clicks }}</td>
                     <td>
                         <a href="{{ route('url.analytics', ['shortCode' => $url->short_code]) }}" class="btn btn-info">Analytics</button>
