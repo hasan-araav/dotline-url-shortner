@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Url;
+use App\Rules\SafeUrl;
 use App\Services\UrlShortenerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -25,7 +26,7 @@ class UrlController extends Controller
             function() use ($request) {
 
                 $validator = Validator::make($request->all(), [
-                    'url' => 'required|url|max:2048',
+                    'url' => ['required', 'url', 'max:2048', new SafeUrl],
                 ]);
 
                 return $this->urlShortenerService->shorten($request->url);
