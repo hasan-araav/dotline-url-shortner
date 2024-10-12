@@ -4,10 +4,12 @@ namespace App\Jobs;
 
 use App\Models\Click;
 use App\Models\Url;
+use App\Services\ClickAnalyticsService;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Redis;
 use Jenssegers\Agent\Agent;
 use Torann\GeoIP\Facades\GeoIP;
 
@@ -16,15 +18,13 @@ class RecordClickJob implements ShouldQueue
     use Queueable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $url;
-    protected $request;
 
     /**
      * Create a new job instance.
      */
-    public function __construct(Url $url, $request)
+    public function __construct(Url $url)
     {
         $this->url = $url;
-        $this->request = $request;
     }
 
     /**
@@ -32,24 +32,37 @@ class RecordClickJob implements ShouldQueue
      */
     public function handle(): void
     {
-        $this->url->increment('clicks');
+        $clickDataKey = "click_data:{$this->url->short_code}";
 
-        $agent = new Agent();
-        $agent->setUserAgent($this->request['userAgent']);
+        // Get all stored click data
+        $clickDataList = Redis::lrange($clickDataKey, 0, -1);
 
-        $geoip = GeoIP::getLocation($this->request['ip']);
+        // Process all click data
+        foreach ($clickDataList as $clickDataJson) {
+            $clickData = json_decode($clickDataJson, true);
 
-        Click::create([
-            'url_id' => $this->url->id,
-            'ip_address' => $this->request['ip'],
-            'user_agent' => $this->request['userAgent'],
-            'referer' => $this->request['referer'],
-            'country' => $geoip->iso_code,
-            'city' => $geoip->city,
-            'device_type' => $this->getDeviceType($agent),
-            'browser' => $agent->browser(),
-            'os' => $agent->platform(),
-        ]);
+            $agent = new Agent();
+            $agent->setUserAgent($clickData['userAgent']);
+
+            $geoip = GeoIP::getLocation($clickData['ip']);
+
+            Click::create([
+                'url_id' => $this->url->id,
+                'ip_address' => $clickData['ip'],
+                'user_agent' => $clickData['userAgent'],
+                'referer' => $clickData['referer'],
+                'country' => $geoip->iso_code,
+                'city' => $geoip->city,
+                'device_type' => $this->getDeviceType($agent),
+                'browser' => $agent->browser(),
+                'os' => $agent->platform(),
+            ]);
+        }
+
+        // Clear processes click data
+        Redis::del($clickDataKey);
+        // Clear Analytics Cache Data
+        ClickAnalyticsService::invalidateCache($this->url->id);
     }
 
     private function getDeviceType($agent) {

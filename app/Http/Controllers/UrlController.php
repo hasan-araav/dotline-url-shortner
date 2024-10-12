@@ -60,13 +60,7 @@ class UrlController extends Controller
             abort(404);
         }
 
-        $request = [
-            'ip' => request()->ip(),
-            'userAgent' => request()->userAgent(),
-            'referer' => request()->header('referer')
-        ];
-
-        RecordClickJob::dispatch($url, $request);
+        $this->urlShortenerService->recordClick($url);
 
         return redirect()->away($url->original_url);
     }

@@ -1,11 +1,13 @@
 <?php
 namespace App\Services;
 
+use App\Jobs\RecordClickJob;
 use App\Models\Url;
 use App\Models\Click;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
 
 class UrlShortenerService {
@@ -66,16 +68,27 @@ class UrlShortenerService {
         });
     }
 
-    public function recordClick(Url $url, Request $request) {
+    public function recordClick(Url $url) {
 
-        DB::transaction(function () use ($url, $request) {
-            $url->increment('clicks');
+        $clicksKey = "clicks:{$url->short_code}";
+        $clickDatakey = "click_data:{$url->short_code}";
 
-            Click::create([
-                'url_id' => $url->id,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ]);
-        });
+        $clicks = Redis::incr($clicksKey);
+
+        // Store Click Data Into Redis
+        $clickData = [
+            'ip' => request()->ip(),
+            'userAgent' => request()->userAgent(),
+            'referer' => request()->header('referer')
+        ];
+        Redis::rpush($clickDatakey, json_encode($clickData));
+
+        // Dispatch RecordClickJob every 10 clicks
+        if ($clicks % 10 == 0) {
+            RecordClickJob::dispatch($url);
+
+            // Reset Redis Click Counter
+            Redis::set($clicksKey, 0);
+        }
     }
 }
