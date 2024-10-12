@@ -82,9 +82,9 @@
                             <div class="alert alert-success" role="alert">
                                 <h4 class="alert-heading">Shortened URL:</h4>
                                 <p class="mb-0"><a
-                                        href="{{ Session::get('short_url') }}">{{ Session::get('short_url') }}</a>
+                                        href="{{ Session::get('short_url') }}" target="_blank">{{ Session::get('short_url') }}</a>
                                 </p>
-                                <a href="{{ route('url.analytics', ['shortCode' => Session::get('short_code')])}}" class="btn btn-primary mt-4">View Analytics</a>
+                                <a href="{{ route('url.analytics', ['shortCode' => Session::get('short_code')])}}" class="btn btn-primary mt-4" target="_blank">View Analytics</a>
                             </div>
                         @endif
                         <p class="lead mt-3">Use this tool to create short, easy-to-share links.</p>

@@ -85,6 +85,9 @@ class UrlShortenerService {
 
         // Dispatch RecordClickJob every 10 clicks
         if ($clicks % 10 == 0) {
+
+            $url->increment('clicks', $clicks);
+
             RecordClickJob::dispatch($url);
 
             // Reset Redis Click Counter
