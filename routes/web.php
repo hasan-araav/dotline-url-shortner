@@ -21,10 +21,4 @@ Route::post('/shorten', [UrlController::class, 'shorten'])->name('url.shorten');
 Route::get('/analytics/{shortCode}', [UrlController::class, 'getAnalytics'])->name('url.analytics');
 Route::delete('/{shortCode}', [UrlController::class, 'destroy'])->name('url.delete');
 
-Route::get('/invalidate-cache/{urlId}', function ($urlId) {
-    Cache::forget("basic_analytics:{$urlId}");
-    Cache::forget("average_visits:{$urlId}");
-    Cache::forget("donut_chart_data:{$urlId}");
-});
-
 require __DIR__ . '/auth.php';
