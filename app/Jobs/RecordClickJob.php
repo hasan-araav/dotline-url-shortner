@@ -36,6 +36,7 @@ class RecordClickJob implements ShouldQueue
 
         // Get all stored click data
         $clickDataList = Redis::lrange($clickDataKey, 0, -1);
+        $clicksToInsert = [];
 
         // Process all click data
         foreach ($clickDataList as $clickDataJson) {
@@ -46,7 +47,7 @@ class RecordClickJob implements ShouldQueue
 
             $geoip = GeoIP::getLocation($clickData['ip']);
 
-            Click::create([
+            $clicksToInsert[] = [
                 'url_id' => $this->url->id,
                 'ip_address' => $clickData['ip'],
                 'user_agent' => $clickData['userAgent'],
@@ -56,7 +57,14 @@ class RecordClickJob implements ShouldQueue
                 'device_type' => $this->getDeviceType($agent),
                 'browser' => $agent->browser(),
                 'os' => $agent->platform(),
-            ]);
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        // Perform batch insert
+        if (!empty($clicksToInsert)) {
+            Click::insert($clicksToInsert);
         }
 
         // Clear processes click data
