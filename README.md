@@ -11,9 +11,9 @@ This project uses the following external services:
 1. Update your `.env` file with the following credentials:
 
    ```
-   GOOGLE_SAFE_BROWSING_API_KEY=AIzaSyBo-cKcKgfviOr_jSVN66MncFHpxJFjXNI
-   MAXMIND_USER_ID=1073839
-   MAXMIND_LICENSE_KEY=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
+   GOOGLE_SAFE_BROWSING_API_KEY=
+   MAXMIND_USER_ID=
+   MAXMIND_LICENSE_KEY=
    ```
 
 2. Configure your database credentials in the `.env` file.
