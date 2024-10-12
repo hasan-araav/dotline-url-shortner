@@ -9,6 +9,7 @@ This project uses the following external services:
 ## Setup
 
 1. Update your `.env` file with the following credentials:
+2. Copy the .env.exmpale and then just update the following keys:
 
    ```
    GOOGLE_SAFE_BROWSING_API_KEY=
